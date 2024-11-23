@@ -18,13 +18,13 @@ cat >/etc/yum.repos.d/tailscale.repo <<-"EOF"
 EOF
 
 ### packages ###
-rpm-ostree install --idempotent \
+dnf5 install -y \
 	langpacks-{en,pt} \
 	zsh eza bat micro mc \
 	fzf fd-find ripgrep ncdu tldr tmux \
 	btop htop xclip xsel wl-clipboard \
 	iperf3 firewall-config syncthing tailscale \
-	distrobox podman{,-compose} docker{,-compose} \
+	distrobox podman{,-compose} \
 	btrfs-assistant gparted p7zip{,-plugins} cabextract \
 	cups-pdf gnome-themes-extra gnome-tweaks tilix \
 	wireguard-tools \

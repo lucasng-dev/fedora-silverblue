@@ -55,7 +55,7 @@ jobs:
               BUILD_TAGS+=("${TAG}-${TIMESTAMP}")
           done
 
-          BUILD_TAGS+=("41.${TIMESTAMP}.0" "41" "latest")
+          BUILD_TAGS+=("41.${TIMESTAMP}.0" "latest")
 
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
               echo "Generated the following commit tags: "

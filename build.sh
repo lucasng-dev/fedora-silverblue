@@ -35,7 +35,8 @@ dnf5 install -y \
 	https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
 
 ### onedrive ###
-git clone https://github.com/bpozdena/OneDriveGUI.git /usr/lib/OneDriveGUI
+git clone --branch=v1.1.1 --depth=1 https://github.com/bpozdena/OneDriveGUI.git /usr/lib/OneDriveGUI
+rm -rf /usr/lib/OneDriveGUI/.git
 cat >/usr/share/applications/OneDriveGUI.desktop <<-"EOF"
 	[Desktop Entry]
 	Type=Application

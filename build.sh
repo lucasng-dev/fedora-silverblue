@@ -30,15 +30,12 @@ dnf5 install -y \
 	wireguard-tools \
 	openrgb \
 	virt-manager \
-	onedrive \
+	onedrive python3-pyside6 python3-requests \
 	tailscale \
-	python3-pip \
 	https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
 
 ### onedrive ###
 git clone https://github.com/bpozdena/OneDriveGUI.git /usr/lib/OneDriveGUI
-pushd /usr/lib/OneDriveGUI
-python3 -m pip install -r requirements.txt --ignore-requires-python --prefix=/usr
 cat >/usr/share/applications/OneDriveGUI.desktop <<-"EOF"
 	[Desktop Entry]
 	Type=Application
@@ -49,8 +46,7 @@ cat >/usr/share/applications/OneDriveGUI.desktop <<-"EOF"
 	Icon=/usr/lib/OneDriveGUI/src/resources/images/OneDriveGUI.png
 	Categories=Network;Office
 EOF
-popd
 
 ### cleanup ###
-rm -f /etc/yum.repos.d/tailscale.repo
+rm -rf /etc/yum.repos.d/tailscale.repo /var/log/dnf*
 popd && rm -rf "$tmpdir"

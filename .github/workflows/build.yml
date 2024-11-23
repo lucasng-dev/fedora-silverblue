@@ -75,7 +75,7 @@ jobs:
           done
 
           echo "alias_tags=${alias_tags[*]}" >> $GITHUB_OUTPUT
-          echo "SOURCE_IMAGE_VERSION=${TIMESTAMP}.0" >> $GITHUB_ENV
+          echo "SOURCE_IMAGE_VERSION=41.${TIMESTAMP}.0" >> $GITHUB_ENV
 
       # Build metadata
       - name: Image Metadata

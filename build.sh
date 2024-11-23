@@ -4,6 +4,24 @@ set -eux -o pipefail
 ### prepare ###
 tmpdir=$(mktemp -d) && pushd "$tmpdir"
 
+### onedrive ###
+git clone https://github.com/bpozdena/OneDriveGUI.git
+pushd OneDriveGUI
+dnf5 install -y python3-pip
+python3 -m pip install -r requirements.txt --ignore-requires-python --prefix=/usr
+popd
+mv OneDriveGUI /usr/lib/OneDriveGUI
+cat >/usr/share/applications/OneDriveGUI.desktop <<-"EOF"
+	[Desktop Entry]
+	Type=Application
+	StartupNotify=true
+	Name=OneDriveGUI
+	Comment=A simple GUI for OneDrive Linux client
+	Exec=/usr/bin/python3 /usr/lib/OneDriveGUI/src/OneDriveGUI.py
+	Icon=/usr/lib/OneDriveGUI/src/resources/images/OneDriveGUI.png
+	Categories=Network;Office
+EOF
+
 ### extra repos ###
 # tailscale: https://pkgs.tailscale.com/stable/fedora/tailscale.repo
 cat >/etc/yum.repos.d/tailscale.repo <<-"EOF"

@@ -11,6 +11,13 @@ on:
       - "**/README.md"
   workflow_dispatch:
 
+env:
+  IMAGE_SOURCE: "ghcr.io/ublue-os/silverblue-main"
+  IMAGE_VERSION: "41"
+  IMAGE_TAG: "null"
+  IMAGE_NAME: "${{ github.event.repository.name }}"
+  IMAGE_DESCRIPTION: "Fedora Silverblue Custom"
+
 jobs:
   build:
     name: Build and push image
@@ -19,13 +26,6 @@ jobs:
       contents: read
       packages: write
       id-token: write
-
-    env:
-      IMAGE_SOURCE: "ghcr.io/ublue-os/silverblue-main"
-      IMAGE_VERSION: "41"
-      IMAGE_TAG: "null"
-      IMAGE_NAME: "${{ github.event.repository.name }}"
-      IMAGE_DESCRIPTION: "Fedora Silverblue Custom"
 
     steps:
       - name: Checkout

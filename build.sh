@@ -62,7 +62,7 @@ cat >/etc/udisks2/mount_options.conf <<-EOF
 EOF
 
 ### cleanup ###
-rm -rf /etc/yum.repos.d/{tailscale,1password}.repo /var/log/dnf*
+rm -rf /etc/yum.repos.d/{tailscale,1password}.repo /var/cache/{dnf,rpm-ostree} /var/log/dnf*
 popd && rm -rf "$tmpdir"
 
 ### commit ###

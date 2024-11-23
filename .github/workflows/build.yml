@@ -72,9 +72,7 @@ jobs:
           build-args: |
             IMAGE_SOURCE=${{ env.IMAGE_SOURCE }}
             IMAGE_VERSION=${{ env.IMAGE_VERSION }}
-          tags: |
-            ${{ steps.image_tag.outputs.tag }}
-            latest
+          tags: ${{ steps.image_tag.outputs.tag }} latest
           labels: ${{ steps.image_metadata.outputs.labels }}
           oci: false
 

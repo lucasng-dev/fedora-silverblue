@@ -1,9 +1,0 @@
-# https://github.com/ublue-os/config/blob/HEAD/files/usr/lib/systemd/system/flatpak-system-update.timer
-
-[Unit]
-Description=Flatpak Automatic Update Trigger
-Documentation=man:flatpak(1)
-
-[Timer]
-RandomizedDelaySec=10m
-OnBootSec=2m

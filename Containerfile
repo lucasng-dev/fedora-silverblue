@@ -1,7 +1,10 @@
+ARG IMAGE_SOURCE=ghcr.io/ublue-os/silverblue-main
+ARG IMAGE_VERSION=latest
+
 FROM scratch AS ctx
 COPY / /
 
-FROM quay.io/fedora/fedora-silverblue:41
+FROM ${IMAGE_SOURCE}:${IMAGE_VERSION}
 RUN --mount=type=cache,dst=/var/cache/rpm-ostree \
     --mount=type=cache,dst=/var/cache/dnf \
     --mount=type=bind,from=ctx,src=/,dst=/ctx \

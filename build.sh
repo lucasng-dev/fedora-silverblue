@@ -5,10 +5,10 @@ set -eux -o pipefail
 tmpdir=$(mktemp -d) && pushd "$tmpdir"
 mkdir -p /var/lib/alternatives
 
-### enable repos ###
-sed -Ei '0,/^enabled=.*$/s//enabled=1/' /etc/yum.repos.d/rpmfusion-nonfree-steam.repo
+### remove packages ###
+dnf5 remove -y just
 
-### install fedora packages ###
+### install packages ###
 dnf5 install -y \
 	zsh eza bat micro mc \
 	fzf fd-find ripgrep ncdu tldr tmux \
@@ -18,7 +18,7 @@ dnf5 install -y \
 	btrfs-assistant gparted p7zip{,-plugins} cabextract \
 	cups-pdf gnome-themes-extra gnome-tweaks tilix \
 	wireguard-tools \
-	openrgb steam-devices \
+	openrgb \
 	virt-manager \
 	onedrive python3-pyside6 python3-requests \
 	tailscale 1password-cli \

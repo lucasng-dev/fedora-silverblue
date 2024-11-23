@@ -14,14 +14,13 @@ on:
 env:
   IMAGE_SOURCE: "ghcr.io/ublue-os/silverblue-main"
   IMAGE_VERSION: "41"
-  IMAGE_TAG: "null"
   IMAGE_NAME: "${{ github.event.repository.name }}"
   IMAGE_DESCRIPTION: "Fedora Silverblue Custom"
 
 jobs:
   build:
     name: Build and push image
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       packages: write
@@ -39,45 +38,44 @@ jobs:
         with:
           attempt_delay: 15000
           attempt_limit: 3
-          command: |
-            podman pull ${{ env.IMAGE_SOURCE }}:${{ env.IMAGE_VERSION }}
+          command: podman pull ${{ env.IMAGE_SOURCE }}:${{ env.IMAGE_VERSION }}
 
       - name: Set image tag
         uses: Wandalen/wretry.action@v3.7.2
+        id: image_tag
         with:
           attempt_delay: 15000
           attempt_limit: 3
           command: |
             set -eu -o pipefail
             upstream_tag=$(skopeo inspect docker://${{ env.IMAGE_SOURCE }}:${{ env.IMAGE_VERSION }} | jq -r '.Labels["org.opencontainers.image.version"]')
-            echo "tag=$upstream_tag"
-            echo "IMAGE_TAG=$upstream_tag" >> $GITHUB_ENV
+            echo "$upstream_tag"
+            echo "tag=$upstream_tag" >> $GITHUB_OUTPUT
 
       - name: Set image metadata
         uses: docker/metadata-action@v5
         id: image_metadata
         with:
-          images: |
-            ${{ env.IMAGE_NAME }}
+          images: ${{ env.IMAGE_NAME }}
           labels: |
             io.artifacthub.package.readme-url=https://raw.githubusercontent.com/${{ github.repository }}/HEAD/README.md
             org.opencontainers.image.title=${{ env.IMAGE_NAME }}
             org.opencontainers.image.description=${{ env.IMAGE_DESCRIPTION }}
-            org.opencontainers.image.version=${{ env.IMAGE_TAG }}
+            org.opencontainers.image.version=${{ steps.image_tag.outputs.tag }}
 
       - name: Build image
         id: build_image
         uses: redhat-actions/buildah-build@v2
         with:
-          containerfiles: |
-            ./Containerfile
+          containerfiles: ./Containerfile
           image: ${{ env.IMAGE_NAME }}
           build-args: |
             IMAGE_SOURCE=${{ env.IMAGE_SOURCE }}
             IMAGE_VERSION=${{ env.IMAGE_VERSION }}
-          tags: ${{ env.IMAGE_TAG }} latest
-          labels: |
-            ${{ steps.image_metadata.outputs.labels }}
+          tags: |
+            ${{ steps.image_tag.outputs.tag }}
+            latest
+          labels: ${{ steps.image_metadata.outputs.labels }}
           oci: false
 
       - name: Login to GitHub Container Registry

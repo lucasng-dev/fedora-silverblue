@@ -53,6 +53,18 @@ jobs:
             echo "tag=$upstream_tag"
             echo "IMAGE_TAG=$upstream_tag" >> $GITHUB_ENV
 
+      - name: Set image metadata
+        uses: docker/metadata-action@v5
+        id: image_metadata
+        with:
+          images: |
+            ${{ env.IMAGE_NAME }}
+          labels: |
+            io.artifacthub.package.readme-url=https://raw.githubusercontent.com/${{ github.repository }}/HEAD/README.md
+            org.opencontainers.image.title=${{ env.IMAGE_NAME }}
+            org.opencontainers.image.description=${{ env.IMAGE_DESCRIPTION }}
+            org.opencontainers.image.version=${{ env.IMAGE_TAG }}
+
       - name: Build image
         id: build_image
         uses: redhat-actions/buildah-build@v2
@@ -65,10 +77,7 @@ jobs:
             IMAGE_VERSION=${{ env.IMAGE_VERSION }}
           tags: ${{ env.IMAGE_TAG }} latest
           labels: |
-            io.artifacthub.package.readme-url=https://raw.githubusercontent.com/${{ github.repository }}/HEAD/README.md
-            org.opencontainers.image.title=${{ env.IMAGE_NAME }}
-            org.opencontainers.image.description=${{ env.IMAGE_DESCRIPTION }}
-            org.opencontainers.image.version=${{ env.IMAGE_TAG }}
+            ${{ steps.image_metadata.outputs.labels }}
           oci: false
 
       - name: Login to GitHub Container Registry

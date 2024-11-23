@@ -36,5 +36,4 @@ rpm-ostree install --idempotent \
 
 ### cleanup ###
 rm -f /etc/yum.repos.d/tailscale.repo
-rpm-ostree cleanup -m
 popd && rm -rf "$tmpdir"

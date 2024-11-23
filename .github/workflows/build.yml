@@ -23,6 +23,7 @@ jobs:
     env:
       IMAGE_SOURCE: "ghcr.io/ublue-os/silverblue-main"
       IMAGE_VERSION: "41"
+      IMAGE_TAG: "null"
       IMAGE_NAME: "${{ github.event.repository.name }}"
       IMAGE_DESCRIPTION: "Fedora Silverblue Custom"
 
@@ -42,7 +43,6 @@ jobs:
             podman pull ${{ env.IMAGE_SOURCE }}:${{ env.IMAGE_VERSION }}
 
       - name: Set image tag
-        id: image_tag
         uses: Wandalen/wretry.action@v3.7.2
         with:
           attempt_delay: 15000
@@ -50,7 +50,8 @@ jobs:
           command: |
             set -eu -o pipefail
             upstream_tag=$(skopeo inspect docker://${{ env.IMAGE_SOURCE }}:${{ env.IMAGE_VERSION }} | jq -r '.Labels["org.opencontainers.image.version"]')
-            echo "tag=$upstream_tag" >> $GITHUB_OUTPUT
+            echo "tag=$upstream_tag"
+            echo "IMAGE_TAG=$upstream_tag" >> $GITHUB_ENV
 
       - name: Set image metadata
         uses: docker/metadata-action@v5
@@ -62,7 +63,7 @@ jobs:
             io.artifacthub.package.readme-url=https://raw.githubusercontent.com/${{ github.repository }}/HEAD/README.md
             org.opencontainers.image.title=${{ env.IMAGE_NAME }}
             org.opencontainers.image.description=${{ env.IMAGE_DESCRIPTION }}
-            org.opencontainers.image.version=${{ steps.image_tag.outputs.tag }}
+            org.opencontainers.image.version=${{ env.IMAGE_TAG }}
 
       - name: Build image
         id: build_image
@@ -74,7 +75,7 @@ jobs:
           build-args: |
             IMAGE_SOURCE=${{ env.IMAGE_SOURCE }}
             IMAGE_VERSION=${{ env.IMAGE_VERSION }}
-          tags: ${{ steps.image_tag.outputs.tag }} latest
+          tags: ${{ env.IMAGE_TAG }} latest
           labels: ${{ steps.image_metadata.outputs.labels }}
           oci: false
 

@@ -5,43 +5,14 @@ set -eux -o pipefail
 tmpdir=$(mktemp -d) && pushd "$tmpdir"
 
 # helper
-rpm-install() {
-	local rpm_url=$1
-	local opt_dir=$2
-	local lib_dir=$3
-	local rpm_file && rpm_file=$(basename "$lib_dir").rpm
-	mkdir -p /var/opt
-	wget -q -O "$rpm_file" "$rpm_url"
-	rpm -ivh ./"$rpm_file"
+mv-opt-lib() {
+	local opt_dir=$1 lib_dir=$2
 	mv "$opt_dir" "$lib_dir"
 	search_dirs=("$lib_dir" /usr/share/{applications,appdata,gnome-control-center/default-apps})
 	{ grep -rl "$opt_dir" "${search_dirs[@]}" 2>/dev/null || true; } | xargs sed -i "s|$opt_dir|$lib_dir|g"
 }
 
-# tailscale repo: https://pkgs.tailscale.com/stable/fedora/tailscale.repo
-cat >/etc/yum.repos.d/tailscale.repo <<-"EOF"
-	[tailscale-stable]
-	name=Tailscale stable
-	baseurl=https://pkgs.tailscale.com/stable/fedora/$basearch
-	enabled=1
-	type=rpm
-	repo_gpgcheck=1
-	gpgcheck=1
-	gpgkey=https://pkgs.tailscale.com/stable/fedora/repo.gpg
-EOF
-
-# 1password repo: https://support.1password.com/install-linux/#fedora-or-red-hat-enterprise-linux
-cat >/etc/yum.repos.d/1password.repo <<-"EOF"
-	[1password]
-	name=1Password Stable Channel
-	baseurl=https://downloads.1password.com/linux/rpm/stable/$basearch
-	enabled=1
-	gpgcheck=1
-	repo_gpgcheck=1
-	gpgkey=https://downloads.1password.com/linux/keys/1password.asc
-EOF
-
-# packages
+# base packages
 rpm-ostree install --idempotent \
 	langpacks-{en,pt} \
 	zsh eza bat micro mc \
@@ -54,21 +25,61 @@ rpm-ostree install --idempotent \
 	wireguard-tools \
 	openrgb \
 	virt-manager \
-	onedrive \
-	tailscale 1password-cli \
-	liberation-fonts https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
+	onedrive
 
-# 1password - https://github.com/btkostner/silverblue/blob/main/scripts/1password.sh
-rpm-install https://downloads.1password.com/linux/rpm/stable/x86_64/1password-latest.rpm /opt/1Password /usr/lib/1Password
-ln -srf /usr/lib/1Password /usr/bin/1password
+# repo: google-chrome
+sed -i '\/enabled=/c\enabled=1' /etc/yum.repos.d/google-chrome.repo >/dev/null
+
+# repo: microsoft-edge -> https://www.microsoft.com/edge/download
+cat >/etc/yum.repos.d/microsoft-edge.repo <<-"EOF"
+	[microsoft-edge]
+	name=Microsoft Edge
+	baseurl=https://packages.microsoft.com/yumrepos/edge
+	enabled=1
+	gpgcheck=1
+	gpgkey=https://packages.microsoft.com/keys/microsoft.asc
+EOF
+
+# repo: tailscale -> https://pkgs.tailscale.com/stable/fedora/tailscale.repo
+cat >/etc/yum.repos.d/tailscale.repo <<-"EOF"
+	[tailscale-stable]
+	name=Tailscale stable
+	baseurl=https://pkgs.tailscale.com/stable/fedora/$basearch
+	enabled=1
+	type=rpm
+	repo_gpgcheck=1
+	gpgcheck=1
+	gpgkey=https://pkgs.tailscale.com/stable/fedora/repo.gpg
+EOF
+
+# repo: 1password -> https://support.1password.com/install-linux/#fedora-or-red-hat-enterprise-linux
+cat >/etc/yum.repos.d/1password.repo <<-"EOF"
+	[1password]
+	name=1Password Stable Channel
+	baseurl=https://downloads.1password.com/linux/rpm/stable/$basearch
+	enabled=1
+	gpgcheck=1
+	repo_gpgcheck=1
+	gpgkey=https://downloads.1password.com/linux/keys/1password.asc
+EOF
+
+# install
+mkdir /var/opt
+dnf5 install -y 1password{,-cli} google-chrome-stable microsoft-edge-stable tailscale \
+	https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
+
+# 1password - https://github.com/bsherman/bos/blob/main/build_files/desktop-1password.sh
+mv-opt-lib /opt/1Password /usr/lib/1Password
+ln -srf /usr/lib/1Password/1password /usr/bin/1password
+chmod 4755 /usr/lib/1Password/chrome-sandbox
 
 # chrome
-rpm-install https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm /opt/google/chrome /usr/lib/google-chrome
-ln -srf /usr/lib/google-chrome/google-chrome-stable /usr/bin/google-chrome-stable
+mv-opt-lib /opt/google/chrome /usr/lib/google-chrome
+ln -srf /usr/lib/google-chrome/google-chrome /usr/bin/google-chrome-stable
 
 # edge
-rpm-install 'https://go.microsoft.com/fwlink?linkid=2149137' /opt/microsoft/msedge /usr/lib/microsoft-edge
-ln -srf /usr/lib/microsoft-edge/microsoft-edge-stable /usr/bin/microsoft-edge-stable
+mv-opt-lib /opt/microsoft/msedge /usr/lib/microsoft-edge
+ln -srf /usr/lib/microsoft-edge/microsoft-edge /usr/bin/microsoft-edge-stable
 
 # cleanup
 rpm-ostree override remove ublue-os-just just nvtop

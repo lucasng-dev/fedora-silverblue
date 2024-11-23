@@ -3,51 +3,67 @@ set -eux -o pipefail
 
 ### prepare ###
 tmpdir=$(mktemp -d) && pushd "$tmpdir"
+mkdir -p /var/lib/alternatives
 
-### extra repos ###
-# tailscale: https://pkgs.tailscale.com/stable/fedora/tailscale.repo
-cat >/etc/yum.repos.d/tailscale.repo <<-"EOF"
-	[tailscale-stable]
-	name=Tailscale stable
-	baseurl=https://pkgs.tailscale.com/stable/fedora/$basearch
-	enabled=1
-	type=rpm
-	repo_gpgcheck=1
-	gpgcheck=1
-	gpgkey=https://pkgs.tailscale.com/stable/fedora/repo.gpg
-EOF
+### enable repos ###
+sed -Ei '0,/^enabled=.*$/s//enabled=1/' /etc/yum.repos.d/rpmfusion-nonfree-steam.repo
 
-### packages ###
+### install fedora packages ###
 dnf5 install -y \
-	langpacks-{en,pt} \
 	zsh eza bat micro mc \
 	fzf fd-find ripgrep ncdu tldr tmux \
 	btop htop xclip xsel wl-clipboard \
-	iperf3 firewall-config syncthing tailscale \
-	distrobox podman{,-compose} \
+	iperf3 firewall-config syncthing \
+	distrobox podman{,-compose,-docker,-tui} \
 	btrfs-assistant gparted p7zip{,-plugins} cabextract \
 	cups-pdf gnome-themes-extra gnome-tweaks tilix \
 	wireguard-tools \
-	openrgb \
+	openrgb steam-devices \
 	virt-manager \
 	onedrive python3-pyside6 python3-requests \
-	tailscale \
+	tailscale 1password-cli \
 	https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
 
-### onedrive ###
-git clone --branch=v1.1.1 --depth=1 https://github.com/bpozdena/OneDriveGUI.git /usr/lib/OneDriveGUI
+### install onedrive-gui ###
+git clone --branch=main --depth=1 https://github.com/bpozdena/OneDriveGUI.git /usr/lib/OneDriveGUI
 rm -rf /usr/lib/OneDriveGUI/.git
-cat >/usr/share/applications/OneDriveGUI.desktop <<-"EOF"
-	[Desktop Entry]
-	Type=Application
-	StartupNotify=true
-	Name=OneDriveGUI
-	Comment=A simple GUI for OneDrive Linux client
-	Exec=/usr/bin/python3 /usr/lib/OneDriveGUI/src/OneDriveGUI.py
-	Icon=/usr/lib/OneDriveGUI/src/resources/images/OneDriveGUI.png
-	Categories=Network;Office
+ln -s /usr/share/applications/OneDriveGUI.desktop /etc/xdg/autostart/OneDriveGUI.desktop
+
+### configure rpm-ostree ###
+sed -Ei '/AutomaticUpdatePolicy=/c\AutomaticUpdatePolicy=stage' /etc/rpm-ostreed.conf >/dev/null
+systemctl enable rpm-ostreed-automatic.timer
+
+### configure flatpak ###
+systemctl enable flatpak-system-update.timer
+systemctl --global enable flatpak-user-update.timer
+
+### configure podman ###
+sed -Ei 's|(--filter)|--filter restart-policy=unless-stopped \1|g' /usr/lib/systemd/system/podman-restart.service >/dev/null
+
+### configure ssh ###
+systemctl disable sshd.service
+
+### configure libvirt ###
+systemctl enable libvirtd.service
+
+### configure tailscale ###
+systemctl enable tailscaled.service
+
+### configure gnome-disk-image-mounter ###
+sed -Ei 's|(^Exec=gnome-disk-image-mounter\b)|\1 --writable|g' /usr/share/applications/gnome-disk-image-mounter.desktop
+
+### configure udisks2 ###
+udisks2_generate() { echo "$(grep -Eo "\b$1=.+" /etc/udisks2/mount_options.conf.example | tail -n 1),$2"; }
+cat >/etc/udisks2/mount_options.conf <<-EOF
+	[defaults]
+	$(udisks2_generate 'ntfs_defaults' 'dmask=0022,fmask=0133,noatime')
+	$(udisks2_generate 'exfat_defaults' 'dmask=0022,fmask=0133,noatime')
+	$(udisks2_generate 'vfat_defaults' 'dmask=0022,fmask=0133,noatime')
 EOF
 
 ### cleanup ###
-rm -rf /etc/yum.repos.d/tailscale.repo /var/log/dnf*
+rm -rf /etc/yum.repos.d/{tailscale,1password}.repo /var/log/dnf*
 popd && rm -rf "$tmpdir"
+
+### commit ###
+ostree container commit

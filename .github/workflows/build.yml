@@ -52,7 +52,8 @@ jobs:
             IMAGE_VERSION_FULL=$(skopeo inspect docker://${{ env.IMAGE_SOURCE }}:${{ env.IMAGE_VERSION_MAJOR }} | jq -r '.Labels["org.opencontainers.image.version"]')
             echo "IMAGE_VERSION_FULL=$IMAGE_VERSION_FULL" >> $GITHUB_ENV
             echo "IMAGE_VERSION_FULL=$IMAGE_VERSION_FULL"
-            echo "IMAGE_TAGS=$IMAGE_VERSION_FULL $IMAGE_VERSION_MAJOR latest" >> $GITHUB_ENV
+            IMAGE_TAGS="$IMAGE_VERSION_FULL $IMAGE_VERSION_MAJOR latest"
+            echo "IMAGE_TAGS=$IMAGE_TAGS" >> $GITHUB_ENV
             echo "IMAGE_TAGS=$IMAGE_TAGS"
 
       - name: Build image

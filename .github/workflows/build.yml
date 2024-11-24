@@ -86,7 +86,7 @@ jobs:
           attempt_limit: 3
           with: |
             image: ${{ env.IMAGE_NAME }}
-            tags: ${{ env.IMAGE_TAG }}
+            tags: ${{ env.IMAGE_TAG }} latest
             registry: ghcr.io/${{ github.repository_owner }}
             username: ${{ env.REGISTRY_USER }}
             password: ${{ env.REGISTRY_PASSWORD }}

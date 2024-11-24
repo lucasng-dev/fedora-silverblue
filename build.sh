@@ -16,6 +16,7 @@ sed -Ei '0,/^enabled=.*$/s//enabled=1/' /etc/yum.repos.d/rpmfusion-nonfree-steam
 
 ### install packages ###
 dnf5 install -y \
+	langpacks-{en,pt} \
 	zsh eza bat micro mc \
 	fzf fd-find ripgrep ncdu tldr tmux \
 	btop htop xclip xsel wl-clipboard \
@@ -68,7 +69,7 @@ cat >/etc/udisks2/mount_options.conf <<-EOF
 EOF
 
 ### rebuild initramfs ###
-dracut -f
+dracut -f --force-add tpm2-tss
 
 ### cleanup ###
 rm -rf /etc/yum.repos.d/{tailscale,1password}.repo /var/log/dnf*

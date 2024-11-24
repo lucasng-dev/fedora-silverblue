@@ -67,6 +67,9 @@ cat >/etc/udisks2/mount_options.conf <<-EOF
 	$(udisks2_generate 'vfat_defaults' 'dmask=0022,fmask=0133,noatime')
 EOF
 
+### rebuild initramfs ###
+dracut -f
+
 ### cleanup ###
 rm -rf /etc/yum.repos.d/{tailscale,1password}.repo /var/log/dnf*
 popd && rm -rf "$tmpdir"

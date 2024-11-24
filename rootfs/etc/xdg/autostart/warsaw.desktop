@@ -1,8 +1,8 @@
 [Desktop Entry]
 Type=Application
 Name=Warsaw
-TryExec=/usr/local/bin/warsaw
-Exec=/usr/local/bin/warsaw --delay
+TryExec=/usr/bin/warsaw
+Exec=/usr/bin/warsaw --delay
 StartupNotify=false
 NoDisplay=true
 X-GNOME-Autostart-enabled=true

@@ -13,10 +13,11 @@ on:
 
 env:
   IMAGE_SOURCE: "quay.io/fedora/fedora-silverblue"
-  IMAGE_VERSION: "41"
   IMAGE_NAME: "${{ github.event.repository.name }}"
   IMAGE_DESCRIPTION: "Fedora Silverblue Custom"
-  IMAGE_TAG: "null"
+  IMAGE_VERSION_MAJOR: "41"
+  IMAGE_VERSION_FULL: "" # will be set by the workflow
+  IMAGE_TAGS: "" # will be set by the workflow
 
 jobs:
   build:
@@ -39,18 +40,20 @@ jobs:
         with:
           attempt_delay: 15000
           attempt_limit: 3
-          command: podman pull ${{ env.IMAGE_SOURCE }}:${{ env.IMAGE_VERSION }}
+          command: podman pull ${{ env.IMAGE_SOURCE }}:${{ env.IMAGE_VERSION_MAJOR }}
 
-      - name: Set image tag
+      - name: Set image version
         uses: Wandalen/wretry.action@v3.7.2
         with:
           attempt_delay: 15000
           attempt_limit: 3
           command: |
             set -eu -o pipefail
-            upstream_tag=$(skopeo inspect docker://${{ env.IMAGE_SOURCE }}:${{ env.IMAGE_VERSION }} | jq -r '.Labels["org.opencontainers.image.version"]')
-            echo "$upstream_tag"
-            echo "IMAGE_TAG=$upstream_tag" >> $GITHUB_ENV
+            IMAGE_VERSION_FULL=$(skopeo inspect docker://${{ env.IMAGE_SOURCE }}:${{ env.IMAGE_VERSION_MAJOR }} | jq -r '.Labels["org.opencontainers.image.version"]')
+            echo "IMAGE_VERSION_FULL=$IMAGE_VERSION_FULL" >> $GITHUB_ENV
+            echo "IMAGE_VERSION_FULL=$IMAGE_VERSION_FULL"
+            echo "IMAGE_TAGS=$IMAGE_VERSION_FULL $IMAGE_VERSION_MAJOR latest" >> $GITHUB_ENV
+            echo "IMAGE_TAGS=$IMAGE_TAGS"
 
       - name: Build image
         uses: redhat-actions/buildah-build@v2
@@ -59,13 +62,13 @@ jobs:
           image: ${{ env.IMAGE_NAME }}
           build-args: |
             IMAGE_SOURCE=${{ env.IMAGE_SOURCE }}
-            IMAGE_VERSION=${{ env.IMAGE_VERSION }}
-          tags: ${{ env.IMAGE_TAG }} latest
+            IMAGE_TAG=${{ env.IMAGE_VERSION_MAJOR }}
+          tags: ${{ env.IMAGE_TAGS }}
           labels: |
-            io.artifacthub.package.readme-url=https://raw.githubusercontent.com/${{ github.repository }}/HEAD/README.md
             org.opencontainers.image.title=${{ env.IMAGE_NAME }}
             org.opencontainers.image.description=${{ env.IMAGE_DESCRIPTION }}
-            org.opencontainers.image.version=${{ env.IMAGE_TAG }}
+            org.opencontainers.image.version=${{ env.IMAGE_VERSION_FULL }}
+            io.artifacthub.package.readme-url=https://raw.githubusercontent.com/${{ github.repository }}/HEAD/README.md
           oci: false
 
       - name: Login to GitHub Container Registry
@@ -86,7 +89,7 @@ jobs:
           attempt_limit: 3
           with: |
             image: ${{ env.IMAGE_NAME }}
-            tags: ${{ env.IMAGE_TAG }} latest
+            tags: ${{ env.IMAGE_TAGS }}
             registry: ghcr.io/${{ github.repository_owner }}
             username: ${{ env.REGISTRY_USER }}
             password: ${{ env.REGISTRY_PASSWORD }}

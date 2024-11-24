@@ -1,10 +1,10 @@
 ARG IMAGE_SOURCE=quay.io/fedora/fedora-silverblue
-ARG IMAGE_VERSION=latest
+ARG IMAGE_TAG=latest
 
 FROM scratch AS ctx
 COPY / /
 
-FROM ${IMAGE_SOURCE}:${IMAGE_VERSION}
+FROM ${IMAGE_SOURCE}:${IMAGE_TAG}
 RUN --mount=type=cache,dst=/var/cache/rpm-ostree \
     --mount=type=cache,dst=/var/cache/dnf \
     --mount=type=bind,from=ctx,src=/,dst=/ctx \

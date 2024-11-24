@@ -50,7 +50,7 @@ jobs:
             set -eu -o pipefail
             upstream_tag=$(skopeo inspect docker://${{ env.IMAGE_SOURCE }}:${{ env.IMAGE_VERSION }} | jq -r '.Labels["org.opencontainers.image.version"]')
             echo "$upstream_tag"
-            echo "tag=$upstream_tag" >> $GITHUB_ENV
+            echo "IMAGE_TAG=$upstream_tag" >> $GITHUB_ENV
 
       - name: Build image
         uses: redhat-actions/buildah-build@v2

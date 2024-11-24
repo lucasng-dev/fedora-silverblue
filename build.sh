@@ -5,12 +5,6 @@ set -eux -o pipefail
 tmpdir=$(mktemp -d) && pushd "$tmpdir"
 mkdir -p /var/lib/alternatives
 
-### install ublue systemd scripts ###
-git clone --branch=main --depth=1 https://github.com/ublue-os/config.git ublue-config
-cp -r ./ublue-config/files/usr/lib/systemd/{system,user}* /usr/lib/systemd/
-cp -r ./ublue-config/files/etc/systemd/system/rpm-ostreed* /etc/systemd/system/
-rm -rf ublue-config
-
 ### enable repos ###
 sed -Ei '0,/^enabled=.*$/s//enabled=1/' /etc/yum.repos.d/rpmfusion-nonfree-steam.repo
 
@@ -39,6 +33,17 @@ ln -s /usr/share/applications/OneDriveGUI.desktop /etc/xdg/autostart/OneDriveGUI
 ### configure rpm-ostree ###
 sed -Ei '/AutomaticUpdatePolicy=/c\AutomaticUpdatePolicy=stage' /etc/rpm-ostreed.conf >/dev/null
 systemctl enable rpm-ostreed-automatic.timer
+
+### install flatpak update scripts ###
+git clone --branch=main --depth=1 https://github.com/ublue-os/config.git ublue-config
+(
+	for dirname in system{,-preset} user{,-preset}; do
+		src="ublue-config/files/usr/lib/systemd/$dirname"
+		dest="/usr/lib/systemd/$dirname" && mkdir -p "$dest"
+		cp "$src"/*flatpak* "$dest/"
+	done
+)
+rm -rf ublue-config
 
 ### configure flatpak ###
 systemctl enable flatpak-system-update.timer

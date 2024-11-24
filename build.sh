@@ -5,8 +5,14 @@ set -eux -o pipefail
 tmpdir=$(mktemp -d) && pushd "$tmpdir"
 mkdir -p /var/lib/alternatives
 
-### remove packages ###
-dnf5 remove -y just
+### install ublue systemd scripts ###
+git clone --branch=main --depth=1 https://github.com/ublue-os/config.git ublue-config
+cp -r ./ublue-config/files/usr/lib/systemd/{system,user}* /usr/lib/systemd/
+cp -r ./ublue-config/files/etc/systemd/system/rpm-ostreed* /etc/systemd/system/
+rm -rf ublue-config
+
+### enable repos ###
+sed -Ei '0,/^enabled=.*$/s//enabled=1/' /etc/yum.repos.d/rpmfusion-nonfree-steam.repo
 
 ### install packages ###
 dnf5 install -y \
@@ -18,7 +24,7 @@ dnf5 install -y \
 	btrfs-assistant gparted p7zip{,-plugins} cabextract \
 	cups-pdf gnome-themes-extra gnome-tweaks tilix \
 	wireguard-tools \
-	openrgb \
+	openrgb steam-devices \
 	virt-manager \
 	onedrive python3-pyside6 python3-requests \
 	tailscale 1password-cli \

@@ -1,4 +1,4 @@
-ARG IMAGE_SOURCE=ghcr.io/ublue-os/silverblue-main
+ARG IMAGE_SOURCE=quay.io/fedora/fedora-silverblue
 ARG IMAGE_VERSION=latest
 
 FROM scratch AS ctx

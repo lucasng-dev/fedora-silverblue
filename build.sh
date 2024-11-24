@@ -25,6 +25,11 @@ dnf5 install -y \
 	tailscale 1password-cli \
 	https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
 
+### install cloudflared ###
+wget -q -O /usr/bin/cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
+chmod +x /usr/bin/cloudflared
+/usr/bin/cloudflared --version
+
 ### install onedrive-gui ###
 git clone --branch=main --depth=1 https://github.com/bpozdena/OneDriveGUI.git /usr/lib/OneDriveGUI
 rm -rf /usr/lib/OneDriveGUI/.git
@@ -55,7 +60,7 @@ sed -Ei 's|(--filter)|--filter restart-policy=unless-stopped \1|g' /usr/lib/syst
 ### configure ssh ###
 systemctl disable sshd.service
 
-### configure libvirt ###
+### configure virt-manager ###
 systemctl enable libvirtd.service
 
 ### configure tailscale ###

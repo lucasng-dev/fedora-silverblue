@@ -1,5 +1,5 @@
 ARG IMAGE_SOURCE=quay.io/fedora/fedora-silverblue
-ARG IMAGE_TAG=latest
+ARG IMAGE_TAG=41
 
 FROM scratch AS ctx
 COPY / /

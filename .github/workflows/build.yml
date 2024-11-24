@@ -3,7 +3,7 @@ name: build-ublue-custom
 
 on:
   schedule:
-    - cron: "5 10 * * *"
+    - cron: "0 6 * * *"
   push:
     branches:
       - main

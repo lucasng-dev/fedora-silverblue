@@ -2,6 +2,7 @@
 name: build-fedora-silverblue
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: "0 12 * * 6"
   push:
@@ -9,14 +10,18 @@ on:
       - main
     paths-ignore:
       - "**.md"
-  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - "**.md"
 
 env:
-  IMAGE_SOURCE: "quay.io/fedora/fedora-silverblue"
-  IMAGE_NAME: "${{ github.event.repository.name }}"
-  IMAGE_DESCRIPTION: "Fedora Silverblue Custom"
-  IMAGE_VERSION_MAJOR: "41"
-  IMAGE_VERSION_FULL: "" # will be set by the workflow
+  IMAGE_SOURCE: quay.io/fedora/fedora-silverblue
+  IMAGE_NAME: ${{ github.event.repository.name }}
+  IMAGE_DESCRIPTION: Fedora Silverblue Custom
+  IMAGE_VERSION_MAJOR: 41
+  IMAGE_VERSION: "" # will be set by the workflow
   IMAGE_TAGS: "" # will be set by the workflow
 
 jobs:
@@ -32,29 +37,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Maximize build space
-        uses: ublue-os/remove-unwanted-software@v7
-
       - name: Pull source image
-        uses: Wandalen/wretry.action@v3.7.2
+        uses: Wandalen/wretry.action@v3
         with:
           attempt_delay: 15000
           attempt_limit: 3
           command: podman pull ${{ env.IMAGE_SOURCE }}:${{ env.IMAGE_VERSION_MAJOR }}
 
-      - name: Set image version
-        uses: Wandalen/wretry.action@v3.7.2
+      - name: Set image version and tags
+        uses: Wandalen/wretry.action@v3
         with:
           attempt_delay: 15000
           attempt_limit: 3
           command: |
             set -eu -o pipefail
-            IMAGE_VERSION_FULL=$(skopeo inspect docker://${{ env.IMAGE_SOURCE }}:${{ env.IMAGE_VERSION_MAJOR }} | jq -r '.Labels["org.opencontainers.image.version"]')
-            echo "IMAGE_VERSION_FULL=$IMAGE_VERSION_FULL" >> $GITHUB_ENV
-            echo "IMAGE_VERSION_FULL=$IMAGE_VERSION_FULL"
-            IMAGE_TAGS="$IMAGE_VERSION_FULL $IMAGE_VERSION_MAJOR latest"
-            echo "IMAGE_TAGS=$IMAGE_TAGS" >> $GITHUB_ENV
-            echo "IMAGE_TAGS=$IMAGE_TAGS"
+            IMAGE_VERSION=$(podman image inspect ${{ env.IMAGE_SOURCE }}:${{ env.IMAGE_VERSION_MAJOR }} | jq -r '.[0].Labels["org.opencontainers.image.version"]')
+            if [[ -z "$IMAGE_VERSION" ]]; then
+              echo "Failed to get version from upstream image" 1>&2 && exit 1
+            fi
+            echo "IMAGE_VERSION=$IMAGE_VERSION" | tee -a $GITHUB_ENV
+            IMAGE_TAGS="$IMAGE_VERSION $IMAGE_VERSION_MAJOR latest"
+            echo "IMAGE_TAGS=$IMAGE_TAGS" | tee -a $GITHUB_ENV
 
       - name: Build image
         uses: redhat-actions/buildah-build@v2
@@ -68,19 +71,21 @@ jobs:
           labels: |
             org.opencontainers.image.title=${{ env.IMAGE_NAME }}
             org.opencontainers.image.description=${{ env.IMAGE_DESCRIPTION }}
-            org.opencontainers.image.version=${{ env.IMAGE_VERSION_FULL }}
+            org.opencontainers.image.version=${{ env.IMAGE_VERSION }}
             io.artifacthub.package.readme-url=https://raw.githubusercontent.com/${{ github.repository }}/HEAD/README.md
           oci: false
 
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
+      - name: Login to registry
+        uses: redhat-actions/podman-login@v1
+        if: github.event_name != 'pull_request'
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push image
-        uses: Wandalen/wretry.action@v3.7.2
+        uses: Wandalen/wretry.action@v3
+        if: github.event_name != 'pull_request'
         env:
           REGISTRY_USER: ${{ github.actor }}
           REGISTRY_PASSWORD: ${{ github.token }}

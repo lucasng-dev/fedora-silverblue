@@ -39,18 +39,16 @@ ln -s /usr/share/applications/OneDriveGUI.desktop /etc/xdg/autostart/OneDriveGUI
 sed -Ei '/AutomaticUpdatePolicy=/c\AutomaticUpdatePolicy=stage' /etc/rpm-ostreed.conf >/dev/null
 systemctl enable rpm-ostreed-automatic.timer
 
-### install flatpak update scripts ###
-git clone --branch=main --depth=1 https://github.com/ublue-os/config.git ublue-config
+### configure flatpak ###
 (
+	git clone --branch=main --depth=1 https://github.com/ublue-os/config.git ublue-config
 	for dirname in system{,-preset} user{,-preset}; do
 		src="ublue-config/files/usr/lib/systemd/$dirname"
 		dest="/usr/lib/systemd/$dirname" && mkdir -p "$dest"
 		cp "$src"/*flatpak* "$dest/"
 	done
+	rm -rf ublue-config
 )
-rm -rf ublue-config
-
-### configure flatpak ###
 systemctl enable flatpak-system-update.timer
 systemctl --global enable flatpak-user-update.timer
 

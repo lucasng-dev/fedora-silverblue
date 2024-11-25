@@ -1,9 +1,9 @@
 ---
-name: build-ublue-custom
+name: build-fedora-silverblue
 
 on:
   schedule:
-    - cron: "0 9 * * 6"
+    - cron: "0 12 * * 6"
   push:
     branches:
       - main

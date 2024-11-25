@@ -36,14 +36,14 @@ jobs:
         uses: ublue-os/remove-unwanted-software@v7
 
       - name: Pull source image
-        uses: Wandalen/wretry.action@v3.7.2
+        uses: Wandalen/wretry.action@v3.7.3
         with:
           attempt_delay: 15000
           attempt_limit: 3
           command: podman pull ${{ env.IMAGE_SOURCE }}:${{ env.IMAGE_VERSION_MAJOR }}
 
       - name: Set image version
-        uses: Wandalen/wretry.action@v3.7.2
+        uses: Wandalen/wretry.action@v3.7.3
         with:
           attempt_delay: 15000
           attempt_limit: 3
@@ -80,7 +80,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push image
-        uses: Wandalen/wretry.action@v3.7.2
+        uses: Wandalen/wretry.action@v3.7.3
         env:
           REGISTRY_USER: ${{ github.actor }}
           REGISTRY_PASSWORD: ${{ github.token }}

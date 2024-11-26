@@ -93,6 +93,3 @@ EOF
 ### cleanup ###
 mv -f /etc/yum.repos.d/rpmfusion-nonfree-steam.repo.bak /etc/yum.repos.d/rpmfusion-nonfree-steam.repo
 rm -rf /etc/yum.repos.d/{tailscale,1password}.repo
-
-### commit ###
-ostree container commit

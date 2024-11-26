@@ -31,8 +31,7 @@ dnf install -y \
 	virt-manager \
 	onedrive python3-pyside6 python3-requests \
 	tailscale 1password-cli \
-	https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm \
-	https://cloud.gastecnologia.com.br/bb/downloads/ws/warsaw_setup64.rpm
+	https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
 
 ### install cloudflared ###
 wget -q -O /usr/bin/cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
@@ -92,6 +91,9 @@ cat >/etc/udisks2/mount_options.conf <<-EOF
 EOF
 
 ### configure warsaw ###
+wget -O warsaw_setup64.run https://cloud.gastecnologia.com.br/bb/downloads/ws/fedora/warsaw_setup64.run
+7z x warsaw_setup64.run -owarsaw
+dnf install -y warsaw/*/warsaw-*.x86_64.rpm
 systemctl enable warsaw.service
 systemctl --global enable warsaw.service
 

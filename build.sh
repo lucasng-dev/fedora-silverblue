@@ -90,13 +90,6 @@ cat >/etc/udisks2/mount_options.conf <<-EOF
 	$(udisks2_generate 'vfat_defaults' 'dmask=0022,fmask=0133,noatime')
 EOF
 
-### configure warsaw ###
-wget -O warsaw_setup64.run https://cloud.gastecnologia.com.br/bb/downloads/ws/fedora/warsaw_setup64.run
-7z x warsaw_setup64.run -owarsaw
-dnf install -y warsaw/*/warsaw-*.x86_64.rpm
-systemctl enable warsaw.service
-systemctl --global enable warsaw.service
-
 ### cleanup ###
 mv -f /etc/yum.repos.d/rpmfusion-nonfree-steam.repo.bak /etc/yum.repos.d/rpmfusion-nonfree-steam.repo
 rm -rf /etc/yum.repos.d/{tailscale,1password}.repo

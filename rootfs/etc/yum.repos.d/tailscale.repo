@@ -1,5 +1,3 @@
-# https://pkgs.tailscale.com/stable/fedora/tailscale.repo
-
 [tailscale-stable]
 name=Tailscale stable
 baseurl=https://pkgs.tailscale.com/stable/fedora/$basearch

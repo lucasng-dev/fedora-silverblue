@@ -63,6 +63,10 @@ systemctl --global enable flatpak-user-update.timer
 
 ### configure podman ###
 sed -Ei 's|(--filter)|--filter restart-policy=unless-stopped \1|g' /usr/lib/systemd/system/podman-restart.service >/dev/null
+systemctl enable podman.socket
+systemctl --global enable podman.socket
+systemctl enable podman-restart.service
+systemctl --global enable podman-restart.service
 
 ### configure ssh ###
 systemctl disable sshd.service
@@ -89,6 +93,7 @@ EOF
 
 ### configure warsaw ###
 systemctl enable warsaw.service
+systemctl --global enable warsaw.service
 
 ### cleanup ###
 mv -f /etc/yum.repos.d/rpmfusion-nonfree-steam.repo.bak /etc/yum.repos.d/rpmfusion-nonfree-steam.repo

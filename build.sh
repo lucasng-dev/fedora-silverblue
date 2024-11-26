@@ -32,7 +32,7 @@ dnf install -y \
 	onedrive python3-pyside6 python3-requests \
 	tailscale 1password-cli \
 	https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm \
-	https://guardiao.itau.com.br/warsaw/warsaw_setup_fedora_64.rpm
+	https://cloud.gastecnologia.com.br/bb/downloads/ws/warsaw_setup64.rpm
 
 ### install cloudflared ###
 wget -q -O /usr/bin/cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64

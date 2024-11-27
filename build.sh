@@ -8,16 +8,12 @@ ln -sfT /usr/lib/opt /var/opt
 ln -sfT /usr/lib/usrlocal /var/usrlocal
 ln -sfT /usr/lib/alternatives /var/lib/alternatives
 
-# enable rpm repos
-cp /etc/yum.repos.d/rpmfusion-nonfree-steam.repo /etc/yum.repos.d/rpmfusion-nonfree-steam.repo.bak
-sed -Ei '0,/^enabled=.*$/s//enabled=1/' /etc/yum.repos.d/rpmfusion-nonfree-steam.repo
-
 # remove rpm packages
 dnf remove -y \
 	gnome-software-fedora-langpacks firefox
 
 # install rpm packages
-dnf install -y \
+dnf install -y --enablerepo=rpmfusion-nonfree-steam \
 	langpacks-{en,pt} \
 	zsh eza bat micro mc \
 	lsb_release fzf fd-find ripgrep tree ncdu tldr bc rsync tmux \
@@ -37,28 +33,21 @@ dnf install -y \
 	https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
 
 # cleanup rpm repos
-mv -f /etc/yum.repos.d/rpmfusion-nonfree-steam.repo.bak /etc/yum.repos.d/rpmfusion-nonfree-steam.repo
 rm -f /etc/yum.repos.d/{tailscale,1password}.repo
 
 # enable rpm-ostree automatic updates
-sed -Ei '/AutomaticUpdatePolicy=/c\AutomaticUpdatePolicy=stage' /etc/rpm-ostreed.conf >/dev/null
+sed -Ei '/AutomaticUpdatePolicy=/c\AutomaticUpdatePolicy=stage' /etc/rpm-ostreed.conf
 systemctl enable rpm-ostreed-automatic.timer
 
 # enable flatpak automatic updates
-(
-	git clone --branch=main --depth=1 https://github.com/ublue-os/config.git ublue-config
-	for dirname in system{,-preset} user{,-preset}; do
-		src="ublue-config/files/usr/lib/systemd/$dirname"
-		dest="/usr/lib/systemd/$dirname" && mkdir -p "$dest"
-		cp "$src"/*flatpak* "$dest/"
-	done
-	rm -rf ublue-config
-)
+git clone --branch=main --depth=1 https://github.com/ublue-os/config.git ublue-config
+cp ublue-config/files/usr/lib/systemd/system/flatpak-system-update.{service,timer} /usr/lib/systemd/system/
+cp ublue-config/files/usr/lib/systemd/user/flatpak-user-update.{service,timer} /usr/lib/systemd/user/
 systemctl enable flatpak-system-update.timer
 systemctl --global enable flatpak-user-update.timer
 
 # enable podman services
-sed -Ei 's|(--filter)|--filter restart-policy=unless-stopped \1|g' /usr/lib/systemd/system/podman-restart.service >/dev/null
+sed -Ei 's|(--filter)|--filter restart-policy=unless-stopped \1|g' /usr/lib/systemd/system/podman-restart.service
 systemctl enable podman.socket
 systemctl --global enable podman.socket
 systemctl enable podman-restart.service

@@ -4,7 +4,7 @@
 
 Custom Fedora Silverblue OCI image based on Fedora Silverblue [official image](https://quay.io/repository/fedora/fedora-silverblue).
 
-Scripts based on [ublue-os/main](https://github.com/ublue-os/main) project.
+Scripts based on [ublue-os/main](https://github.com/ublue-os/main).
 
 ## Usage
 

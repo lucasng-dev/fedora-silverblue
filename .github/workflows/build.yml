@@ -34,7 +34,7 @@ jobs:
       packages: write
 
     steps:
-      - name: Checkout
+      - name: Checkout source code
         uses: actions/checkout@v4
 
       - name: Pull source image

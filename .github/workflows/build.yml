@@ -38,7 +38,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Pull source image
-        uses: Wandalen/wretry.action@v3
+        uses: Wandalen/wretry.action/main@v3
         with:
           attempt_delay: 15000
           attempt_limit: 3
@@ -73,7 +73,7 @@ jobs:
           oci: false
 
       - name: Push image
-        uses: Wandalen/wretry.action@v3
+        uses: Wandalen/wretry.action/main@v3
         if: github.event_name != 'pull_request'
         with:
           action: redhat-actions/push-to-registry@v2

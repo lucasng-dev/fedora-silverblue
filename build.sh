@@ -21,7 +21,7 @@ dnf remove -y \
 dnf install -y \
 	langpacks-{en,pt} \
 	zsh eza bat micro mc \
-	fzf fd-find ripgrep tree ncdu tldr bc rsync tmux \
+	lsb_release fzf fd-find ripgrep tree ncdu tldr bc rsync tmux \
 	btop htop nvtop inxi lm_sensors xclip xsel wl-clipboard \
 	openssl curl wget net-tools telnet traceroute mtr bind-utils mtr nmap netcat whois \
 	iperf3 speedtest-cli wireguard-tools firewall-config syncthing \

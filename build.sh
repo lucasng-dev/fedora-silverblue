@@ -28,7 +28,6 @@ dnf install -y \
 	p7zip{,-plugins} zip unzip unrar unar cabextract \
 	cmatrix lolcat fastfetch onefetch \
 	git{,-lfs,-delta} gh direnv jq yq \
-	shellcheck shfmt \
 	distrobox podman{,-compose,-docker,-tui} \
 	btrfs-assistant gparted parted \
 	cups-pdf gnome-themes-extra gnome-tweaks tilix \

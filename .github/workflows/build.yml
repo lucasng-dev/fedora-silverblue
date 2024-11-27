@@ -52,7 +52,7 @@ jobs:
             echo "Failed to get version from upstream image" 1>&2 && exit 1
           fi
           echo "IMAGE_VERSION=$IMAGE_VERSION" | tee -a $GITHUB_ENV
-          IMAGE_TAGS="$IMAGE_VERSION $IMAGE_VERSION_MAJOR latest"
+          IMAGE_TAGS="$IMAGE_VERSION $IMAGE_VERSION_MAJOR latest commit-$(echo "${{ github.sha }}" | cut -c1-7)"
           echo "IMAGE_TAGS=$IMAGE_TAGS" | tee -a $GITHUB_ENV
 
       - name: Build image

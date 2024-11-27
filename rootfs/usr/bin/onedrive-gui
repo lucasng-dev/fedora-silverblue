@@ -1,0 +1,3 @@
+#!/bin/bash
+app_bin='OneDriveGUI.py'
+pgrep -U "$(id -u)" -f "$app_bin" || exec /usr/bin/python3 "/usr/lib/OneDriveGUI/src/$app_bin" "$@"

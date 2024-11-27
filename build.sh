@@ -2,7 +2,7 @@
 set -eux -o pipefail
 cd "$(mktemp -d)"
 
-# persist additional build-time directories directories (see also: 'rootfs/usr/lib/tmpfiles.d/zz-custom-dirs.conf')
+# persist additional build-time locations (see also: 'rootfs/usr/lib/tmpfiles.d/zz-custom.conf')
 mkdir -p /usr/lib/{opt,usrlocal,alternatives} /var/lib
 ln -sfT /usr/lib/opt /var/opt
 ln -sfT /usr/lib/usrlocal /var/usrlocal
@@ -11,37 +11,36 @@ ln -sfT /usr/lib/alternatives /var/lib/alternatives
 # enable rpm repos
 cp /etc/yum.repos.d/rpmfusion-nonfree-steam.repo /etc/yum.repos.d/rpmfusion-nonfree-steam.repo.bak
 sed -Ei '0,/^enabled=.*$/s//enabled=1/' /etc/yum.repos.d/rpmfusion-nonfree-steam.repo
+wget -O /etc/yum.repos.d/tailscale.repo -q https://pkgs.tailscale.com/stable/fedora/tailscale.repo
+
+# remove rpm packages
+dnf remove -y \
+	gnome-software-fedora-langpacks firefox
 
 # install rpm packages
 dnf install -y \
 	langpacks-{en,pt} \
 	zsh eza bat micro mc \
-	fzf fd-find ripgrep ncdu tldr tmux \
-	btop htop xclip xsel wl-clipboard \
-	iperf3 firewall-config syncthing \
+	fzf fd-find ripgrep tree ncdu tldr bc rsync tmux \
+	btop htop nvtop inxi lm_sensors xclip xsel wl-clipboard \
+	openssl curl wget net-tools telnet traceroute mtr bind-utils mtr nmap netcat whois \
+	iperf3 speedtest-cli wireguard-tools firewall-config syncthing \
+	p7zip{,-plugins} zip unzip unrar unar cabextract \
+	cmatrix lolcat fastfetch onefetch \
+	git{,-lfs,-delta} gh direnv jq yq \
+	shellcheck shfmt \
 	distrobox podman{,-compose,-docker,-tui} \
-	btrfs-assistant gparted p7zip{,-plugins} \
+	btrfs-assistant gparted parted \
 	cups-pdf gnome-themes-extra gnome-tweaks tilix \
-	wireguard-tools \
 	openrgb steam-devices \
 	virt-manager \
 	onedrive python3-pyside6 python3-requests \
-	tailscale 1password-cli \
+	tailscale \
 	https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
 
 # cleanup rpm repos
 mv -f /etc/yum.repos.d/rpmfusion-nonfree-steam.repo.bak /etc/yum.repos.d/rpmfusion-nonfree-steam.repo
-rm -rf /etc/yum.repos.d/{tailscale,1password}.repo
-
-# install onedrive-gui from github main branch
-git clone --branch=main --depth=1 https://github.com/bpozdena/OneDriveGUI.git /usr/lib/OneDriveGUI
-rm -rf /usr/lib/OneDriveGUI/.git
-ln -sfT /usr/share/applications/OneDriveGUI.desktop /etc/xdg/autostart/OneDriveGUI.desktop
-
-# install cloudflared from github releases
-wget -q -O /usr/bin/cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
-chmod +x /usr/bin/cloudflared
-/usr/bin/cloudflared --version
+rm -f /etc/yum.repos.d/tailscale.repo
 
 # enable rpm-ostree automatic updates
 sed -Ei '/AutomaticUpdatePolicy=/c\AutomaticUpdatePolicy=stage' /etc/rpm-ostreed.conf >/dev/null
@@ -89,3 +88,13 @@ EOF
 
 # fix gnome-disk-image-mounter to mount writable by default
 sed -Ei 's|(^Exec=gnome-disk-image-mounter\b)|\1 --writable|g' /usr/share/applications/gnome-disk-image-mounter.desktop
+
+# install onedrive-gui from github main branch
+git clone --branch=main --depth=1 https://github.com/bpozdena/OneDriveGUI.git /usr/lib/OneDriveGUI
+rm -rf /usr/lib/OneDriveGUI/.git
+ln -sfT /usr/share/applications/OneDriveGUI.desktop /etc/xdg/autostart/OneDriveGUI.desktop
+
+# install cloudflared from github releases
+wget -q -O /usr/bin/cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
+chmod +x /usr/bin/cloudflared
+/usr/bin/cloudflared --version

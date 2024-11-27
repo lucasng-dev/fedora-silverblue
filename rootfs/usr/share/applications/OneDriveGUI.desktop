@@ -3,6 +3,6 @@ Type=Application
 StartupNotify=true
 Name=OneDriveGUI
 Comment=A simple GUI for OneDrive Linux client
-Exec=/usr/bin/python3 /usr/lib/OneDriveGUI/src/OneDriveGUI.py
+Exec=/usr/bin/onedrive-gui
 Icon=/usr/lib/OneDriveGUI/src/resources/images/OneDriveGUI.png
 Categories=Network;Office

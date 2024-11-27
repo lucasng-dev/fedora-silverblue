@@ -1,4 +1,4 @@
-# Fedora Silverblue Custom Build
+# Fedora Silverblue (custom build)
 
 Custom Fedora Silverblue OCI image based on Fedora Silverblue [official images](https://quay.io/repository/fedora/fedora-silverblue).
 

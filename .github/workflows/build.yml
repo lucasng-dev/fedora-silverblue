@@ -34,17 +34,17 @@ jobs:
       packages: write
 
     steps:
-      - name: Checkout source code
+      - name: Checkout Git sources
         uses: actions/checkout@v4
 
-      - name: Pull source image
+      - name: Pull OCI source image
         uses: Wandalen/wretry.action/main@v3
         with:
           attempt_delay: 15000
           attempt_limit: 3
           command: podman pull ${{ env.IMAGE_SOURCE }}:${{ env.IMAGE_VERSION_MAJOR }}
 
-      - name: Set image version and tags
+      - name: Set OCI image version and tags
         shell: bash
         run: |
           set -eu -o pipefail
@@ -56,7 +56,7 @@ jobs:
           IMAGE_TAGS="$IMAGE_VERSION $IMAGE_VERSION_MAJOR $IMAGE_VERSION_MAJOR-build-${{ github.run_number }} latest"
           echo "IMAGE_TAGS=$IMAGE_TAGS" | tee -a $GITHUB_ENV
 
-      - name: Build image
+      - name: Build OCI image
         uses: redhat-actions/buildah-build@v2
         with:
           containerfiles: ./Containerfile
@@ -72,7 +72,7 @@ jobs:
             io.artifacthub.package.readme-url=https://raw.githubusercontent.com/${{ github.repository }}/HEAD/README.md
           oci: false
 
-      - name: Push image
+      - name: Push OCI image
         uses: Wandalen/wretry.action/main@v3
         if: github.event_name != 'pull_request'
         with:

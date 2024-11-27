@@ -45,19 +45,16 @@ jobs:
           command: podman pull ${{ env.IMAGE_SOURCE }}:${{ env.IMAGE_VERSION_MAJOR }}
 
       - name: Set image version and tags
-        uses: Wandalen/wretry.action@v3
-        with:
-          attempt_delay: 15000
-          attempt_limit: 3
-          command: |
-            set -eu -o pipefail
-            IMAGE_VERSION=$(podman image inspect ${{ env.IMAGE_SOURCE }}:${{ env.IMAGE_VERSION_MAJOR }} | jq -r '.[0].Labels["org.opencontainers.image.version"]')
-            if [[ -z "$IMAGE_VERSION" ]]; then
-              echo "Failed to get version from upstream image" 1>&2 && exit 1
-            fi
-            echo "IMAGE_VERSION=$IMAGE_VERSION" | tee -a $GITHUB_ENV
-            IMAGE_TAGS="$IMAGE_VERSION $IMAGE_VERSION_MAJOR latest"
-            echo "IMAGE_TAGS=$IMAGE_TAGS" | tee -a $GITHUB_ENV
+        shell: bash
+        run: |
+          set -eu -o pipefail
+          IMAGE_VERSION=$(podman image inspect --format '{{ index .Config.Labels "org.opencontainers.image.version" }}' ${{ env.IMAGE_SOURCE }}:${{ env.IMAGE_VERSION_MAJOR }})
+          if [[ -z "$IMAGE_VERSION" ]]; then
+            echo "Failed to get version from upstream image" 1>&2 && exit 1
+          fi
+          echo "IMAGE_VERSION=$IMAGE_VERSION" | tee -a $GITHUB_ENV
+          IMAGE_TAGS="$IMAGE_VERSION $IMAGE_VERSION_MAJOR latest"
+          echo "IMAGE_TAGS=$IMAGE_TAGS" | tee -a $GITHUB_ENV
 
       - name: Build image
         uses: redhat-actions/buildah-build@v2

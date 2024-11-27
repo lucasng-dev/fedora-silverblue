@@ -33,7 +33,7 @@ dnf install -y \
 	cups-pdf gnome-themes-extra gnome-tweaks tilix \
 	openrgb steam-devices \
 	virt-manager \
-	onedrive python3-pyside6 python3-requests \
+	onedrive python3-{pyside6,requests} \
 	tailscale \
 	https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
 

@@ -6,8 +6,7 @@ COPY / /
 
 FROM ${IMAGE_SOURCE}:${IMAGE_TAG}
 RUN --mount=type=bind,from=sources,src=/,dst=/sources \
-    --mount=type=cache,dst=/var \
-    --mount=type=cache,dst=/tmp \
-    rm -rf /var/* /tmp/* && \
+    --mount=type=tmpfs,dst=/var \
+    --mount=type=tmpfs,dst=/tmp \
     cp -r /sources/rootfs/* / && /sources/build.sh && \
     ostree container commit

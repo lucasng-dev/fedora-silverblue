@@ -61,6 +61,7 @@ jobs:
         with:
           containerfiles: ./Containerfile
           image: ${{ env.IMAGE_NAME }}
+          oci: true
           build-args: |
             IMAGE_SOURCE=${{ env.IMAGE_SOURCE }}
             IMAGE_TAG=${{ env.IMAGE_VERSION_MAJOR }}
@@ -70,7 +71,6 @@ jobs:
             org.opencontainers.image.description=${{ env.IMAGE_DESCRIPTION }}
             org.opencontainers.image.version=${{ env.IMAGE_VERSION }}
             io.artifacthub.package.readme-url=https://raw.githubusercontent.com/${{ github.repository }}/HEAD/README.md
-          oci: false
 
       - name: Push OCI image
         uses: Wandalen/wretry.action/main@v3

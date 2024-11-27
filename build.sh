@@ -11,7 +11,6 @@ ln -sfT /usr/lib/alternatives /var/lib/alternatives
 # enable rpm repos
 cp /etc/yum.repos.d/rpmfusion-nonfree-steam.repo /etc/yum.repos.d/rpmfusion-nonfree-steam.repo.bak
 sed -Ei '0,/^enabled=.*$/s//enabled=1/' /etc/yum.repos.d/rpmfusion-nonfree-steam.repo
-wget -O /etc/yum.repos.d/tailscale.repo -q https://pkgs.tailscale.com/stable/fedora/tailscale.repo
 
 # remove rpm packages
 dnf remove -y \

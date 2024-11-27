@@ -34,12 +34,12 @@ dnf install -y \
 	openrgb steam-devices \
 	virt-manager \
 	onedrive python3-{pyside6,requests} \
-	tailscale \
+	tailscale 1password-cli \
 	https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
 
 # cleanup rpm repos
 mv -f /etc/yum.repos.d/rpmfusion-nonfree-steam.repo.bak /etc/yum.repos.d/rpmfusion-nonfree-steam.repo
-rm -f /etc/yum.repos.d/tailscale.repo
+rm -f /etc/yum.repos.d/{tailscale,1password}.repo
 
 # enable rpm-ostree automatic updates
 sed -Ei '/AutomaticUpdatePolicy=/c\AutomaticUpdatePolicy=stage' /etc/rpm-ostreed.conf >/dev/null
